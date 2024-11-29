@@ -1,84 +1,160 @@
-Realtime Election Voting System
-===============================
+# Real-time Election Data Engineering System
 
-This repository contains the code for a realtime election voting system. The system is built using Python, Kafka, Spark Streaming, Postgres and Streamlit. The system is built using Docker Compose to easily spin up the required services in Docker containers.
+A robust, distributed system for processing and visualizing election data in real-time using modern data engineering tools and practices.
 
-## System Architecture
-![system_architecture.jpg](images%2Fsystem_architecture.jpg)
+## 🏗️ System Architecture
+![system_architecture](images/system_architecture.jpg)
 
-## System Flow
-![system_flow.jpg](images%2Fsystem_flow.jpg)
+This project implements a comprehensive data pipeline that handles real-time election data processing through:
+- Initial data ingestion and storage in PostgreSQL
+- Stream processing with Apache Kafka and Spark
+- Real-time visualization using Streamlit
 
-## System Components
-- **main.py**: This is the main Python script that creates the required tables on postgres (`candidates`, `voters` and `votes`), it also creates the Kafka topic and creates a copy of the `votes` table in the Kafka topic. It also contains the logic to consume the votes from the Kafka topic and produce data to `voters_topic` on Kafka.
-- **voting.py**: This is the Python script that contains the logic to consume the votes from the Kafka topic (`voters_topic`), generate voting data and produce data to `votes_topic` on Kafka.
-- **spark-streaming.py**: This is the Python script that contains the logic to consume the votes from the Kafka topic (`votes_topic`), enrich the data from postgres and aggregate the votes and produce data to specific topics on Kafka.
-- **streamlit-app.py**: This is the Python script that contains the logic to consume the aggregated voting data from the Kafka topic as well as postgres and display the voting data in realtime using Streamlit.
+## 🛠️ Technical Stack
 
-## Setting up the System
-This Docker Compose file allows you to easily spin up Zookkeeper, Kafka and Postgres application in Docker containers. 
+### Data Storage & Streaming
+- **PostgreSQL**: Primary database for storing voter, candidate, and party information
+  - Handles structured data storage for entities
+  - Maintains referential integrity between voters, candidates, and parties
+  - Provides ACID compliance for transaction management
+
+- **Apache Kafka**: Distributed event streaming platform for real-time data flow
+  - Manages multiple topics for different data streams
+  - Ensures fault tolerance through replication
+  - Provides scalable message delivery
+
+- **Apache Spark**: Distributed processing engine for real-time data analytics
+  - Processes streaming data using micro-batch architecture
+  - Performs real-time aggregations and analytics
+  - Scales horizontally for increased load
+
+### Frontend & Visualization
+- **Streamlit**: Interactive dashboard for real-time election results
+  - Provides real-time data visualization
+  - Offers interactive filtering and exploration
+  - Auto-refreshes to show latest results
+
+### Infrastructure
+- **Docker & Docker Compose**: Containerization and orchestration
+  - Ensures consistent development and deployment environments
+  - Simplifies service management and scaling
+  - Facilitates easy setup and teardown
+
+## 📊 Features
+- Real-time vote processing and aggregation
+- Live dashboard with vote counts and statistics
+- Distributed processing for scalability
+- Fault-tolerant data streaming
+- Interactive data visualization
+- Containerized deployment
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.9 or above installed on your machine
-- Docker Compose installed on your machine
-- Docker installed on your machine
+- Docker and Docker Compose
+- Python 3.9 or higher
+- Java Development Kit (JDK) 8 or higher
 
+### Installation
 
-### Steps to Run
-1. Clone this repository.
-2. Navigate to the root containing the Docker Compose file.
-3. Run the following command:
-
+1. Clone the repository
 ```bash
-docker-compose up -d
+git clone https://github.com/MOSSAWIII/realtime-voting-data-engineering.git
+cd realtime-voting-data-engineering
 ```
-This command will start Zookeeper, Kafka and Postgres containers in detached mode (`-d` flag). Kafka will be accessible at `localhost:9092` and Postgres at `localhost:5432`.
 
-##### Additional Configuration
-If you need to modify Zookeeper configurations or change the exposed port, you can update the `docker-compose.yml` file according to your requirements.
-
-### Running the App
-1. Install the required Python packages using the following command:
-
+2. Set up the environment
 ```bash
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-2. Creating the required tables on Postgres and generating voter information on Kafka topic:
-
+3. Start the services
 ```bash
-python main.py
+# Launch required services
+docker-compose up -d
+
+# Run the components in separate terminals
+python main.py        # Data initialization
+python voting.py      # Vote generation
+python spark-streaming.py  # Stream processing
+streamlit run streamlit-app.py  # Dashboard
 ```
 
-3. Consuming the voter information from Kafka topic, generating voting data and producing data to Kafka topic:
+## 🏛️ System Components
 
-```bash
-python voting.py
-```
+### Data Model
+- **Voters Table**:
+  ```sql
+  CREATE TABLE voters (
+      voter_id VARCHAR(255) PRIMARY KEY,
+      voter_name VARCHAR(255),
+      date_of_birth VARCHAR(255),
+      gender VARCHAR(255),
+      nationality VARCHAR(255),
+      registration_number VARCHAR(255),
+      ...
+  );
+  ```
 
-4. Consuming the voting data from Kafka topic, enriching the data from Postgres and producing data to specific topics on Kafka:
+- **Candidates Table**:
+  ```sql
+  CREATE TABLE candidates (
+      candidate_id VARCHAR(255) PRIMARY KEY,
+      candidate_name VARCHAR(255),
+      party_affiliation VARCHAR(255),
+      biography TEXT,
+      campaign_platform TEXT,
+      photo_url TEXT
+  );
+  ```
 
-```bash
-python spark-streaming.py
-```
+- **Votes Table**:
+  ```sql
+  CREATE TABLE votes (
+      voter_id VARCHAR(255) UNIQUE,
+      candidate_id VARCHAR(255),
+      voting_time TIMESTAMP,
+      vote int DEFAULT 1,
+      PRIMARY KEY (voter_id, candidate_id)
+  );
+  ```
 
-5. Running the Streamlit app:
+### Stream Processing Pipeline
+1. **Data Ingestion**:
+   - Voter registration data → `voters_topic`
+   - Candidate information → `candidates_topic`
+   - Vote transactions → `votes_topic`
 
-```bash
-streamlit run streamlit-app.py
-```
+2. **Processing Layer**:
+   - Real-time vote aggregation
+   - Geographic distribution analysis
+   - Party-wise vote counting
+   - Turnout calculations
 
-## Screenshots
-### Candidates and Parties information
-![candidates_and_party.png](images/candidates_and_party.png)
-### Voters
-![voters.png](images%2Fvoters.png)
+3. **Output Streams**:
+   - Aggregated results → `aggregated_votes_per_candidate`
+   - Location statistics → `aggregated_turnout_by_location`
 
-### Voting
-![voting.png](images%2Fvoting.png)
+### Visualization Features
+- Real-time vote tallies per candidate
+- Party-wise vote distribution
+- Geographic heat maps of voter turnout
+- Time-series analysis of voting patterns
 
-### Dashboard
-![dashboard_image.png](images%2Fdashboard_image.png)
+## 🤝 Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/MOSSAWIII/realtime-voting-data-engineering/issues).
 
-## Video
-[![Realtime Voting System Data Engineering](https://img.youtube.com/vi/X-JnC9daQxE/0.jpg)](https://youtu.be/X-JnC9daQxE)
+## 👨‍💻 Author
+
+**Mohamed Amine EL MOUSSAOUI**
+- LinkedIn: [Mohamed Amine EL MOUSSAOUI](https://www.linkedin.com/in/medaminelmoussaoui/)
+- GitHub: [@MOSSAWIII](https://github.com/MOSSAWIII)
+- Email: [Contact me](mailto:your.email@example.com)
+
+## 📝 License
+This project is MIT licensed.
