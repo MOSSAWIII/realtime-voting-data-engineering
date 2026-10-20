@@ -1,6 +1,8 @@
+> **Project status (October 2026):** This is a **synthetic election-streaming demonstration**, not an official election information source or an independently audited voting system. Voter profiles are generated through Random User API and candidate selection in `voting.py` is randomized. Treat names, votes, tallies and plots as demonstration data only. No guarantee of production readiness or actual election integrity is claimed.
+
 # Real-time Election Data Engineering System
 
-A robust, distributed system for processing and visualizing election data in real-time using modern data engineering tools and practices.
+A demonstration pipeline for generating, streaming and visualizing simulated election events with Kafka, Spark, PostgreSQL and Streamlit.
 
 ## 🏗️ System Architecture
 ![system_architecture](images/system_architecture.jpg)
@@ -154,7 +156,7 @@ Contributions, issues, and feature requests are welcome! Feel free to check [iss
 **Mohamed Amine EL MOUSSAOUI**
 - LinkedIn: [Mohamed Amine EL MOUSSAOUI](https://www.linkedin.com/in/medaminelmoussaoui/)
 - GitHub: [@MOSSAWIII](https://github.com/MOSSAWIII)
-- Email: [Contact me](mailto:your.email@example.com)
+- Contact: [GitHub profile](https://github.com/MOSSAWIII)
 
 ## 📝 License
 This project is MIT licensed.
